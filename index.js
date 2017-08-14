@@ -12,7 +12,7 @@ export default class LinkPreview {
       if (!text) {
         reject({ error: 'React-Native-Link-Preview did not receive either a url or text' });
       }
-      if (getResource !== fetch || !getResource instanceof Promise){
+      if (getResource !== fetch && !getResource instanceof Promise){
         reject({ error: 'getResource parameter must be an instance of ES6 promise'});
       }
 
@@ -26,11 +26,11 @@ export default class LinkPreview {
 
       if (detectedUrl) {
         getResource(detectedUrl)
-        .then(response => response.text())
-        .then(text => {
-          resolve(this._parseResponse(text, detectedUrl));
-        })
-        .catch(error => reject({ error }));
+            .then(response => getResource === fetch ? response.text() : response)
+            .then(text => {
+              resolve(this._parseResponse(text, detectedUrl));
+            })
+            .catch(error => reject({ error }));
       } else {
         reject({ error: 'React-Native-Preview-Link did not find a link in the text' });
       }
