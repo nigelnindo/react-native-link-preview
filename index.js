@@ -7,10 +7,13 @@ const cheerio = require('cheerio-without-node-native');
 import { REGEX_VALID_URL } from './constants';
 
 export default class LinkPreview {
-  static getPreview(text) {
+  static getPreview(text, getResource = fetch) {
     return new Promise((resolve, reject) => {
       if (!text) {
         reject({ error: 'React-Native-Link-Preview did not receive either a url or text' });
+      }
+      if (getResource !== fetch || !getResource instanceof Promise){
+        reject({ error: 'getResource parameter must be an instance of ES6 promise'});
       }
 
       let detectedUrl = null;
@@ -22,7 +25,7 @@ export default class LinkPreview {
       });
 
       if (detectedUrl) {
-        fetch(detectedUrl)
+        getResource(detectedUrl)
         .then(response => response.text())
         .then(text => {
           resolve(this._parseResponse(text, detectedUrl));
